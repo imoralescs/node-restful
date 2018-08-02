@@ -1,0 +1,37 @@
+{
+  "name": "node-express",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run build-server",
+    "build-server": "webpack --colors --progress"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imoralescs/node-express.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/imoralescs/node-express/issues"
+  },
+  "homepage": "https://github.com/imoralescs/node-express#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-dotenv": "^0.1.1",
+    "babel-plugin-transform-regenerator": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-0": "^6.24.1",
+    "raw-loader": "^0.5.1",
+    "source-map-support": "^0.5.6",
+    "start-server-webpack-plugin": "^2.2.5",
+    "webpack": "^4.16.3",
+    "webpack-cli": "^3.1.0",
+    "webpack-node-externals": "^1.7.2"
+  },
+  "dependencies": {}
+}
