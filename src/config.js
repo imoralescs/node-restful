@@ -8,13 +8,15 @@ let enviroments = {}
 // Staging (default) enviroment
 enviroments.staging = {
     'port' : 3000,
-    'envName' : 'staging'
+    'envName' : 'staging',
+    'hashingSecret' : 'secret'
 }
 
 // Production enviroment
 enviroments.production = {
     'port' : 5000,
-    'envName' : 'production'
+    'envName' : 'production',
+    'hashingSecret' : 'secret'
 }
 
 // Determine whic enviroment was passed as a command-line argument

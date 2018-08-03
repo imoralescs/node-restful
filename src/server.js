@@ -424,7 +424,13 @@ const server = (req, res) => {
 //-- Ping service and Storing data
 import StringDecoder from 'string_decoder'
 import config from './config'
+import helpers from './helpers'
+import handlers from './lib/handlers'
 import _data from './lib/data'
+
+let router = {
+    'users' : handlers.users
+}
 
 const server = (req, res) => {
     const 
@@ -466,7 +472,7 @@ const server = (req, res) => {
             'queryStringObject' : queryStringObject,
             'method' : method,
             'headers' : headers,
-            'payload' : buffer
+            'payload' : helpers.parseJsonToObject(buffer)
         }
 
         chosenHandler(data, (statusCode, payload) => {

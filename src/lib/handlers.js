@@ -1,4 +1,6 @@
-import { truncate } from "fs";
+import { truncate } from 'fs';
+import _data from './data'
+import helpers from '../helpers'
 
 // Define the handlers
 let handlers = {}
@@ -42,18 +44,66 @@ handlers._users.post = (data, callback) => {
     if(firstName && lastName && phone && password && tosAgreement) {
         // Make sure the user doest already exist
         _data.read('users', phone, (err, data) => {
-            // Hash password
-            const hashedPassword = helpers.hash(password)
+            if(err) {
+                // Hash password
+                const hashedPassword = helpers.hash(password)
+
+                // Create the user object
+                const userObject = {
+                    'firstName' : firstName,
+                    'lastName' : lastName,
+                    'phone' : phone,
+                    'hashedPassword' : hashedPassword,
+                    'tosAgreement' : true
+                }
+
+                // Store the user
+                _data.create('users', phone, userObject, (err) => {
+                    if(!err) {
+                        callback(200)
+                    }
+                    else {
+                        console.log(err)
+                        callback(500, {'Error' : 'Could not create the new user'})
+                    }
+                })
+
+            }
+            else {
+                callback(400, {'Error' : 'A user with that phone number already exists'})
+            }
         })
     }
     else {
-        callback(400, {'Error' : 'A user with that phone number already exists'})
+        callback(400, {'Error' : 'Missing required fields'})
     }
 }
 
 // Users - get
+// Required data: phone
+// Optional data : none
 handlers._users.get = (data, callback) => {
-
+    // Check thet the phone number is valid
+    const phone = typeof(data.queryStringObject.phone) == 'string' && data.queryStringObject.phone.trim().length == 10 
+        ? data.queryStringObject.phone.trim()
+        : false
+    
+    if(phone) {
+        // Lookup the user
+        _data.read('users', phone, (err, data) => {
+            if(!err && data) {
+                // Remove the hashed password from the user object before returning it to the req
+                delete data.hashedPassword
+                callback(200, data)
+            }
+            else {
+                callback(404)
+            }
+        })
+    }
+    else {
+        callback(400, {'Error' : 'Missing required field'})
+    }
 }
 
 // Users - put
