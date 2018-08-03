@@ -55,8 +55,7 @@ lib.read = (dir, file, callback) => {
 
 // Update data inside a file
 lib.update = (dir, file, data, callback) => {
-    // Open the file for writing
-    fs.open(lib.baseDir + dir + '/' + file + '.json', 'utf8', (err, data) => {
+    fs.open(lib.baseDir + dir + '/' + file + '.json', 'r+', (err, fileDescriptor) => {
         if(!err && fileDescriptor) {
             // Convert data to string
             const stringData = JSON.stringify(data)
