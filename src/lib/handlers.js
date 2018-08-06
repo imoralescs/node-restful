@@ -156,35 +156,49 @@ handlers._users.put = (data, callback) => {
     if(phone) {
         // Error if nothing is sent to update
         if(firstName || lastName || password) {
-            // Lookup the user
-            _data.read('users', phone, (err, userData) => {
-                if(!err && userData) {
-                    // Update the fields necesarry
-                    if(firstName) {
-                        userData.firstName = firstName
-                    }
 
-                    if(lastName) {
-                        userData.lastName = lastName
-                    }
 
-                    if(password) {
-                        userData.hashedPassword = helpers.hash(password)
-                    }
+            // Get the token from the headers
+            const token = typeof(data.headers.token) == 'string'
+            ? data.headers.token
+            :false
 
-                    // Store the new updates
-                    _data.update('users', phone, userData, (err) => {
-                        if(!err) {
+            // Verify that given token is valid for the phone number
+            handlers._tokens.verifyToken(token, phone, (tokenIsValid) => {
+                if(tokenIsValid) {
+                    // Lookup the user
+                    _data.read('users', phone, (err, userData) => {
+                        if(!err && userData) {
+                            // Update the fields necesarry
+                            if(firstName) {
+                                userData.firstName = firstName
+                            }
 
+                            if(lastName) {
+                                userData.lastName = lastName
+                            }
+
+                            if(password) {
+                                userData.hashedPassword = helpers.hash(password)
+                            }
+
+                            // Store the new updates
+                            _data.update('users', phone, userData, (err) => {
+                                if(!err) {
+                                    callback(200)
+                                }
+                                else {
+                                    callback(500, {'Error' : 'Could not update the user'})
+                                }
+                            })
                         }
                         else {
-                            console.log(err)
-                            callback(500, {'Error' : 'Could not update the user'})
+                            callback(400, {'Error' : 'The specified user does not exist'})
                         }
                     })
                 }
                 else {
-                    callback(400, {'Error' : 'The specified user does not exist'})
+                    callback(403, {'Error' : 'Missing required token in header, or token is invalid'})
                 }
             })
         }
@@ -206,20 +220,34 @@ handlers._users.delete = (data, callback) => {
         : false
     
     if(phone) {
-        // Lookup the user
-        _data.read('users', phone, (err, data) => {
-            if(!err && data) {
-                _data.delete('users', phone, (err) => {
-                    if(!err) {
-                        callback(200)
+
+        // Get the token from the headers
+        const token = typeof(data.headers.token) == 'string'
+        ? data.headers.token
+        :false
+
+        // Verify that given token is valid for the phone number
+        handlers._tokens.verifyToken(token, phone, (tokenIsValid) => {
+            if(tokenIsValid) {
+                // Lookup the user
+                _data.read('users', phone, (err, data) => {
+                    if(!err && data) {
+                        _data.delete('users', phone, (err) => {
+                            if(!err) {
+                                callback(200)
+                            }
+                            else {
+                                callback(500, {'Error' : 'Could not delete the specified user'})
+                            }
+                        })
                     }
                     else {
-                        callback(500, {'Error' : 'Could not delete the specified user'})
+                        callback(404, {'Error' : 'Could not find the specified user'})
                     }
                 })
             }
             else {
-                callback(404, {'Error' : 'Could not find the specified user'})
+                callback(403, {'Error' : 'Missing required token in header, or token is invalid'})
             }
         })
     }
@@ -349,6 +377,7 @@ handlers._tokens.put = (data, callback) => {
 
                     // Store the new updates
                     _data.update('tokens', id, tokenData, (err) => {
+                        console.log(err)
                         if(!err) {
                             callback(200)
                         }
@@ -404,6 +433,7 @@ handlers._tokens.delete = (data, callback) => {
 handlers._tokens.verifyToken = (id, phone, callback) => {
     // Lookup the token
     _data.read('tokens', id, (err, tokenData) => {
+
         if(!err && tokenData) {
             // Check that the token is for the given user and has not expired
             if(tokenData.phone == phone && tokenData.expires > Date.now()) {
