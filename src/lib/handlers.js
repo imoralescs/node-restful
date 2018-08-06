@@ -2,10 +2,14 @@ import { truncate } from 'fs';
 import _data from './data'
 import helpers from '../helpers'
 
-// Define the handlers
+/*
+ * Define the handlers
+ */
 let handlers = {}
 
-// Users
+/*
+ * Users service handlers
+ */
 handlers.users = (data, callback) => {
     let acceptableMethods = ['post', 'get', 'put', 'delete']
     if(acceptableMethods.indexOf(data.method) > -1) {
@@ -16,22 +20,16 @@ handlers.users = (data, callback) => {
     }
 }
 
-// Container for the users submethods
+/*
+ * Container for the users handler submethods
+ */
 handlers._users = {}
 
-// Users - post
-// Required data: firstName, lastName, phone, password, tosAgreement
-// Optional data: none
-// /users
-/*
-{
-	"firstName":"John",
-	"lastName":"Smith",
-	"phone" : "8881234567",
-	"password" : "secret",
-	"tosAgreement" : true
-}
-*/
+// @route POST /users
+// @description Create users
+// @required firstName, lastName, phone, password, tosAgreement
+// @optional none
+// @access public
 handlers._users.post = (data, callback) => {
     // Check that all required fields are filled out
     let 
@@ -90,10 +88,11 @@ handlers._users.post = (data, callback) => {
     }
 }
 
-// Users - get
-// Required data: phone
-// Optional data : none
-// /users?phone=<number>
+// @route GET /users?phone=:number
+// @description Get users by user phone
+// @required phone
+// @optional none
+// @access private
 handlers._users.get = (data, callback) => {
     // Check thet the phone number is valid
     const phone = typeof(data.queryStringObject.phone) == 'string' && data.queryStringObject.phone.trim().length == 10 
@@ -131,9 +130,11 @@ handlers._users.get = (data, callback) => {
     }
 }
 
-// Users - put
-// Require data: phone
-// Optional data: firstName, lastName, password
+// @route PUT /users?phone=:number
+// @description Update users by user phone
+// @required phone
+// @optional firstName, lastName, password
+// @access private
 handlers._users.put = (data, callback) => {
     // Check thet the phone number is valid
     const phone = typeof(data.payload.phone) == 'string' && data.payload.phone.trim().length == 10 
@@ -211,8 +212,11 @@ handlers._users.put = (data, callback) => {
     }
 }
 
-// Users - delete
-// /users?phone=<number>
+// @route DELETE /users?phone=:number
+// @description Delete users by user phone
+// @required phone
+// @optional none
+// @access private
 handlers._users.delete = (data, callback) => {
     // Check thet the phone number is valid
     const phone = typeof(data.queryStringObject.phone) == 'string' && data.queryStringObject.phone.trim().length == 10 
@@ -256,6 +260,9 @@ handlers._users.delete = (data, callback) => {
     }
 }
 
+/*
+ * Token service handlers
+ */
 handlers.tokens = (data, callback) => {
     let acceptableMethods = ['post', 'get', 'put', 'delete']
     if(acceptableMethods.indexOf(data.method) > -1) {
@@ -266,18 +273,16 @@ handlers.tokens = (data, callback) => {
     }
 }
 
+/*
+ * Container for the users handler submethods
+ */
 handlers._tokens = {}
 
-// Tokens - post 
-// Required data: phone, password
-// Optional data: none
-// /tokens
-/*
-{
-	"phone" : "8881234567",
-	"password" : "secret"
-}
-*/
+// @route POST /tokens
+// @description Create token
+// @required phone, password
+// @optional none
+// @access public
 handlers._tokens.post = (data, callback) => {
     let
         phone = typeof(data.payload.phone) == 'string' && data.payload.phone.trim().length == 10
@@ -327,7 +332,11 @@ handlers._tokens.post = (data, callback) => {
     } 
 }
 
-// /tokens?id=y1bpol3m42ownp70agfk
+// @route GET /tokens?id=:token
+// @description Access to private route
+// @required token
+// @optional none
+// @access private
 handlers._tokens.get = (data, callback) => {
     // Check thet the id is valid
     const id = typeof(data.queryStringObject.id) == 'string' && data.queryStringObject.id.trim().length == 20 
@@ -350,13 +359,11 @@ handlers._tokens.get = (data, callback) => {
     }    
 }
 
-// Required data: id, extend
-/*
-{
-    "id": "y1bpol3m42ownp70agfk",
-    "extend": true
-}
-*/
+// @route PUT /tokens
+// @description Extend token expiration time
+// @required id, extand
+// @optional none
+// @access private
 handlers._tokens.put = (data, callback) => {
     let
         id = typeof(data.payload.id) == 'string' && data.payload.id.trim().length == 20
@@ -400,6 +407,11 @@ handlers._tokens.put = (data, callback) => {
     }
 }
 
+// @route DELETE /tokens?id=:token
+// @description Delete token
+// @required token
+// @optional none
+// @access private
 handlers._tokens.delete = (data, callback) => {
     // Check Lookup the token
     const id = typeof(data.queryStringObject.id) == 'string' && data.queryStringObject.id.trim().length == 20 
@@ -429,7 +441,9 @@ handlers._tokens.delete = (data, callback) => {
     }
 }
 
-// Verify if a given token id is currently valid for a given user
+/*
+ * Verify if a given token id is currently valid for a given user
+ */
 handlers._tokens.verifyToken = (id, phone, callback) => {
     // Lookup the token
     _data.read('tokens', id, (err, tokenData) => {
@@ -449,8 +463,14 @@ handlers._tokens.verifyToken = (id, phone, callback) => {
     })
 }
 
+/*
+ * Ping service handlers
+ */
 handlers.ping = (data, callback) => (callback(200))
 
+/*
+ * Not found service handlers
+ */
 handlers.notFound = (data, callback) => (callback(400))
 
 export default handlers
